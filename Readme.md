@@ -2,11 +2,11 @@
 
 There's been a while already since the Apple introduced storyboards in iOS 5. 6 Years later, people still argue about their usability. 
 
-** Pros: **
+**Pros: **
 - Visual representation of view controller graph
 - Less UI files - A storyboard can embed multiple view controllers, and for each view controllers it can embed custom views, prototype cells, embedded controllers
 
-** Cons: **
+**Cons: **
 - Difficult to manage work accross a team: less files means more chances of having a conflict
 - Stringly programming
 
@@ -117,7 +117,7 @@ We still have to write the code ourselfs, so ho do we fix that?
 
 Now that we decided what we want to achieve, and how we could do it, let's add a taste of sugar by writing the script in swift.
 
-To do so, the first line in the script file has to be this, otherise, for iOS projects it will use the ios swift sdk instead: 
+To do so, the first line in the script file has to be this, otherwise, for iOS projects it will use the ios swift sdk instead: 
 ```sh
 #!/usr/bin/env xcrun --sdk macosx swift
 ```
