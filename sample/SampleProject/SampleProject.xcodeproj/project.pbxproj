@@ -214,7 +214,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n$SRCROOT/../../script/ParseStoryboards.swift $SRCROOT $SRCROOT/SampleProject/NavigationNode.swift\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nchflags nouchg $SCRIPT_OUTPUT_FILE_0\n$SRCROOT/../../script/ParseStoryboards.swift\nchflags uchg $SCRIPT_OUTPUT_FILE_0\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

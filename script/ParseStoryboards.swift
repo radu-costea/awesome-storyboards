@@ -252,9 +252,7 @@ class StoryboardBuilder: NSObject, XMLParserDelegate {
     }
 }
 
-func searchForStoryboardsIn(root: String, outputFile: String) throws {
-    let fileManager = FileManager.default
-    let subpaths = try fileManager.subpathsOfDirectory(atPath: root)
+func parseStoryboards() throws {
     var output =
 """
 //
@@ -290,15 +288,18 @@ extension NavigationNode where Self: UIViewController, Routes: RawRepresentable,
 """
     var storyboards: [String: Storyboard] = [:]
 
-    for subpath in subpaths where NSString(string: subpath).pathExtension == "storyboard" {
-        if let parsed = parseStoryboard(path: NSString(string: root).appendingPathComponent(subpath)) {
-            storyboards[parsed.name] = parsed
+    if let count = Int(ProcessInfo.processInfo.environment["SCRIPT_INPUT_FILE_COUNT"] ?? "0") {
+        for idx in (0..<count) {
+            if let path = ProcessInfo.processInfo.environment["SCRIPT_INPUT_FILE_\(idx)"],
+                let parsed = parseStoryboard(path: path) {
+                print("Parsing storyboard at: path")
+                storyboards[parsed.name] = parsed
+            }
         }
     }
 
     output.append(storyboards.sorted(by: { $0.key < $1.key }).map{ $0.value.output(storyboards: storyboards) }.joined(separator: "") )
-    print(output)
-    let url = URL(fileURLWithPath: outputFile)
+    let url = URL(fileURLWithPath: ProcessInfo.processInfo.environment["SCRIPT_OUTPUT_FILE_0"] ?? "")
     try output.write(to: url, atomically: true, encoding: .utf8)
 }
 
@@ -317,4 +318,4 @@ func parseStoryboard(path: String) -> Storyboard? {
     return nil
 }
 
-try searchForStoryboardsIn(root: CommandLine.arguments[1], outputFile: CommandLine.arguments[2])
+try parseStoryboards()
