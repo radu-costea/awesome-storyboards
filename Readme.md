@@ -2,11 +2,11 @@
 
 There's been a while already since the Apple introduced storyboards in iOS 5. 6 Years later, people still argue about their usability. 
 
-**Pros: **
+**Pros:**
 - Visual representation of view controller graph
 - Less UI files - A storyboard can embed multiple view controllers, and for each view controllers it can embed custom views, prototype cells, embedded controllers
 
-**Cons: **
+**Cons:**
 - Difficult to manage work accross a team: less files means more chances of having a conflict
 - Stringly programming
 
