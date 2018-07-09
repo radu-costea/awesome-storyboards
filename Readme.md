@@ -2,18 +2,19 @@
 
 There's been a while already since the Apple introduced storyboards in iOS 5. 6 Years later, people still argue about their usability. 
 
-Pros: 
+** Pros: **
 - Visual representation of view controller graph
 - Less UI files - A storyboard can embed multiple view controllers, and for each view controllers it can embed custom views, prototype cells, embedded controllers
 
-Cons:
+** Cons: **
 - Difficult to manage work accross a team: less files means more chances of having a conflict
 - Stringly programming
 
-As always, I don't think there is a good or bad solution, each solutions comes with some benefits and some drawbacks. It's a matter of what you can live with. I for one consider storyboards to be a good choice for most of the cases, but I can't ignore their drawback. Or maybe ....
+As always, I don't think there is a good or bad solution, each solutions comes with some benefits and some drawbacks. It's a matter of what you can live with. I for one consider storyboards to be a good choice for most of the cases, but I can't ignore their drawback. 
 
-...i can fix them.
+To fix some of this drawbacks there are already out there some code generators which you can use. I tried **swiftgen** and though it worked pretty well, I didn't like the fact that it was generating a parallel structure for all the storyboards and the navigation allowed for each. I wanted something more closely coupled to my view controllers. Why not doing a code generator of our own?
 
+But before we do that, you can take a look here if you are interested in the existing code generators: http://pretzlav.com/blog/2016/01/29/swift-codegen/
 
 So, let's recap what were the cons:
 
@@ -36,7 +37,7 @@ UIStoryboard(name: "<Storyboard Name>", bundle: <Bundle>).instantiateViewControl
 ```swift
 func prepareForSegue(withIdentifier identifier: String, sender: Any?)
 
-func shouldPerformSegue(withIdentifier identifier: String)
+func shouldPerformSegue(withIdentifier identifier: String) -> Bool
 
 func prepare(for segue: UIStoryboardSegue, sender: Any?)
 ```
@@ -116,7 +117,7 @@ We still have to write the code ourselfs, so ho do we fix that?
 
 Now that we decided what we want to achieve, and how we could do it, let's add a taste of sugar by writing the script in swift.
 
-To do so, the first line in the script file has to be, otherise, for iOS projects it will use the ios swift sdk instead.
+To do so, the first line in the script file has to be this, otherise, for iOS projects it will use the ios swift sdk instead: 
 ```sh
 #!/usr/bin/env xcrun --sdk macosx swift
 ```
@@ -139,7 +140,7 @@ The storyboard file is actually an XML file. On a closer look we see the followi
 	- storyboard
 	- id
 
-We'll use XMLParser and it's delegate methods to identify each tag and transform them into a more useful structure which will be used for generating the code.
+We'll use `XMLParser` and it's delegate methods to identify each tag and transform them into a more useful structure which will be used for generating the code.
 
 From the tags we notice that a segue contains the id of the destination, which can be either a view controller, or a view controller placeholder. Whatever the case might be, we can identify the class of the destination view controller. This means that we could change this:
 
@@ -196,8 +197,24 @@ extension MyAwesomeViewController {
 1. Add a new swift file to your project, where will be generated all the code
 2. Go to build phases
 3. Tap + New run script phase
-4. Fill the script box with: <path to script>/ParseStoryboards.swift <root folder> <path to generated swift file>
+4. Fill the script box with: `<path to script>/ParseStoryboards.swift <root folder> <path to generated swift file>`
 5. Add as input files all the storyboards that you have in the project
 6. Add as ouptut files the generated swift file
 7. Drag the run script phase before Compile Sources phase 
 8. Build and run
+
+
+## Where to go from here?
+
+There are a couple of things that could be improved:
+1. Suport for multiple modules and add the imports accordingly
+2. Consider the fact that we should not be able to call go(to: ...) for routes which denote a relationship (rootViewController, embedded view controller, etc)
+3. The `instantiateFromStoryboard` might not work well if we have a custom view controller and a subclass of it when both can be instantiated from storyboard. Most of the times this you should not be doing this.
+4. The Navigation protocol defines interface for all the possible destinations which implies that you need to write an implementation, even if it's an empty implementation. Most of the times this should not be the case, but in some other cases this could be anoying. Think about alternatives.
+
+## Conclusion
+
+I hope that you'll find the script as helpful as I do, and maybe this will encourage you to make use of storyboards more in your projects.
+
+Thanks for reading and I'm looking forward to your feedback!
+Happy coding!
