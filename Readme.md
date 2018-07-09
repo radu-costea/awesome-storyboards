@@ -10,7 +10,7 @@ There's been a while already since the Apple introduced storyboards in iOS 5. 6 
 - Difficult to manage work accross a team: less files means more chances of having a conflict
 - Stringly programming
 
-As always, I don't think there is a good or bad solution, each solutions comes with some benefits and some drawbacks. It's a matter of what you can live with. I for one consider storyboards to be a good choice for most of the cases, but I can't ignore their drawback. 
+As always, I don't think there is a good or bad solution, each solutions comes with some benefits and some drawbacks. It's a matter of what you can live with. I for one consider storyboards to be a good choice for most of the cases, but I can't ignore their drawbacks. 
 
 To fix some of this drawbacks there are already out there some code generators which you can use. I tried **swiftgen** and though it worked pretty well, I didn't like the fact that it was generating a parallel structure for all the storyboards and the navigation allowed for each. I wanted something more closely coupled to my view controllers. Why not doing a code generator of our own?
 
