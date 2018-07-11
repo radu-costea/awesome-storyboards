@@ -20,11 +20,12 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
-                        <segue destination="oRX-Ul-aFo" kind="show" identifier="showNav" id="1l7-wT-zZz"/>
+                        <segue destination="oRX-Ul-aFo" kind="show" identifier="showNav22" id="1l7-wT-zZz"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="-86" y="72"/>
         </scene>
         <!--Root View Controller-->
         <scene sceneID="lJa-yp-0A3">
