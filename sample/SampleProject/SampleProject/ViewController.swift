@@ -13,6 +13,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        go(to: .showNav22)
     }
 
 
@@ -21,5 +22,6 @@ class ViewController: UIViewController {
 extension ViewController {
     func prepare(forRoute route: ViewController.Routes, destination: UINavigationController) {
         // Error if not implemented
+
     }
 }
