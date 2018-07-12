@@ -171,6 +171,7 @@ extension ViewController: ViewControllerNavigation {
 2. Go to build phases
 3. Tap + New run script phase
 4. Fill the script box with: 
+
 ```sh
 # unlock all output files
 for INFILE in ${!SCRIPT_OUTPUT_FILE_*};
@@ -194,6 +195,7 @@ do
 done
 
 ```
+
 5. Add as input files all the storyboards that you have in the project
 6. Add as ouptut files the generated swift file
 7. Drag the run script phase before Compile Sources phase 
@@ -202,7 +204,7 @@ done
 ## Usage
 
 The script takes the following arguments:
-* "-xcode" - this argument tells the script that it should add all the input files from the SCRIPT_INPUT_FILE_<number>, and the same for output files from SCRIPT_OUTPUT_FILE_<number>
+* "-xcode" - this argument tells the script that it should add all the input files from the `SCRIPT_INPUT_FILE_<number>`, and the same for output files from `SCRIPT_OUTPUT_FILE_<number>`
 * "-t" - arguments following this should be absolute paths to the templates used
 * "-o" - arguments following this should be absolute paths to the output files
 * "-s" - arguments following this shoudl be absolute paths to the storyboards used
