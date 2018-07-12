@@ -154,7 +154,7 @@ protocol MyAwesomeViewControllerNavigation: Node {
 	func prepare(for route: Routes, destination: MyNextAwesomeViewController)
 }
 
-// And enforce MyAwesomeViewController to immplement the navigation protocol:
+// Enforce MyAwesomeViewController to immplement the navigation protocol:
 
 extension MyAwesomeViewController: MyAwesomeViewControllerNavigation { 
 	enum Routes: String {
@@ -197,11 +197,37 @@ extension MyAwesomeViewController {
 1. Add a new swift file to your project, where will be generated all the code
 2. Go to build phases
 3. Tap + New run script phase
-4. Fill the script box with: `<path to script>/ParseStoryboards.swift <root folder> <path to generated swift file>`
+4. Fill the script box with: 
+
+```sh
+# unlock all output files
+for INFILE in ${!SCRIPT_OUTPUT_FILE_*};
+do
+    I=${!INFILE};
+    if [[ -e "$I" ]];
+    then
+        chflags nouchg "$I";
+    fi
+done
+#run the script
+<path to script>/ParseStoryboards.swift -xcode -t <path to template file>
+#lock output files
+for INFILE in ${!SCRIPT_OUTPUT_FILE_*};
+do
+    I=${!INFILE};
+    if [[ -e "$I" ]];
+    then
+        chflags uchg "$I";
+    fi
+done
+
+```
+
 5. Add as input files all the storyboards that you have in the project
 6. Add as ouptut files the generated swift file
 7. Drag the run script phase before Compile Sources phase 
 8. Build and run
+
 
 
 ## Where to go from here?
