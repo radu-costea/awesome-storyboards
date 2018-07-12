@@ -156,7 +156,7 @@ You can combine -xcode and -s respectively -o, and the script will use both -xco
 
 As you probably noticed, there are a couple of predefined tags used in templates, which will be replaced accordingly:
 
-* Keyword tags:
+* Keyword tags: - will be replaced with the corresponding word
 	-  `"<#node#>"` - The Node Protocol if you define one
     -  `"<#routes#>"` - The Routes associated type
     -  `"<#storyboard_name#>"` - The storyboard name 
@@ -165,7 +165,7 @@ As you probably noticed, there are a couple of predefined tags used in templates
     -  `"<#destination_controller#>"` - The destination controller in a navigation
     -  `"<#case_name#>"` - The segue identifier
 
-* Section tags:
+* Section tags: - can be repeated, will only remove the section tags, and replace the inner keywords accordingly 
 	-  `"<#start_node_interface#>"`, `"<#end_node_interface#>"` - defines the section for declaring the Node protocol, or any other stuff which should be only added once
     -  `"<#start_lifecycle_code#>"`, `"<#end_lifecycle_code#>"` - defines the lifecycle section. This section will not be added if a view controller is neither the initial view controller, or has a storyboardIdentifier
     -  `"<#start_instantiate_initial#>"`, `"<#end_instantiate_initial#>"` - section will be used when the view controller is the initial view controller in a storyboard
