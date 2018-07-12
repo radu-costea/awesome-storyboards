@@ -202,19 +202,15 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"$(SRCROOT)/SampleProject/Base.lproj/Main.storyboard",
-			);
-			outputFileListPaths = (
 			);
 			outputPaths = (
 				$SRCROOT/SampleProject/NavigationNode.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nchflags nouchg $SCRIPT_OUTPUT_FILE_0\n$SRCROOT/../../script/ParseStoryboards.swift -s $SRCROOT/SampleProject/Base.lproj/Main.storyboard -t $SRCROOT/../../script/template.swift -o $SCRIPT_OUTPUT_FILE_0\nchflags uchg $SCRIPT_OUTPUT_FILE_0\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n# unlock all output files\nfor INFILE in ${!SCRIPT_OUTPUT_FILE_*};\ndo\n    I=${!INFILE};\n    if [[ -e \"$I\" ]];\n    then\n        chflags nouchg \"$I\";\n    fi\ndone\n#run the script\n$SRCROOT/../../script/ParseStoryboards.swift -xcode -t $SRCROOT/../../script/template.swift\n#lock output files\nfor INFILE in ${!SCRIPT_OUTPUT_FILE_*};\ndo\n    I=${!INFILE};\n    if [[ -e \"$I\" ]];\n    then\n        chflags uchg \"$I\";\n    fi\ndone\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

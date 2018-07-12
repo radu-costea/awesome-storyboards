@@ -11,51 +11,52 @@ import Foundation
 
 // MARK: - Tags used to delimitate code
 
-protocol TagsRange {
-    static var start: String { get }
-    static var end: String { get }
+struct TagsRange {
+    var start: String
+    var end: String
 }
 
 // MARK: - Foundation Extensions
 
 extension StringProtocol where Index == String.Index {
-    func substringBetween<T: TagsRange>(tagsRange: T.Type) -> String {
-        return substringBetween(startTag: T.start, and: T.end)
+    func substringBetween(tagsRange: TagsRange) -> String {
+        return substringBetween(startTag: tagsRange.start, and: tagsRange.end)
     }
 
-    func rangeOfTags<T: TagsRange>(_ tags: T.Type) -> Range<String.Index>? {
-        return rangeOfTags(startTag: T.start, and: T.end)
+    func rangeOfTags(_ tagsRange: TagsRange) -> Range<String.Index>? {
+        return rangeOfTags(startTag: tagsRange.start, and: tagsRange.end)
     }
 
     func substringBetween(startTag start: String, and endTag: String) -> String {
-        if let startRange = range(of: start), let endRange = self[startRange.upperBound...].range(of: endTag) {
-            return String(self[startRange.upperBound..<endRange.lowerBound])
+        guard let startRange = range(of: start), let endRange = self[startRange.upperBound...].range(of: endTag) else {
+            return ""
         }
-        return ""
+        return String(self[startRange.upperBound..<endRange.lowerBound])
     }
 
     func rangeOfTags(startTag start: String, and endTag: String) -> Range<String.Index>? {
-        if let startRange = range(of: start), let endRange = self[startRange.upperBound...].range(of: endTag) {
-            return (startRange.lowerBound..<endRange.upperBound)
+        guard let startRange = range(of: start), let endRange = self[startRange.upperBound...].range(of: endTag) else {
+            return nil
         }
-        return nil
+        return (startRange.lowerBound..<endRange.upperBound)
     }
 }
 
 extension String {
-    mutating func replace<T: TagsRange>(tags: T.Type, string: String) {
-        if let range = rangeOfTags(T.self) {
+
+    mutating func replace(tags: TagsRange, string: String) {
+        if let range = rangeOfTags(tags) {
             replaceSubrange(range, with: string)
         }
     }
 
-    mutating func remove<T: TagsRange>(_ tags: T.Type, keepContent: Bool) {
+    mutating func remove(_ tags: TagsRange, keepContent: Bool) {
         if let range = rangeOfTags(tags) {
             replaceSubrange(range, with: keepContent ? substringBetween(tagsRange: tags) : "")
         }
     }
 
-    mutating func remove<T: TagsRange>(_ tags: T.Type, replaceContent buildNewContent: (String) -> String) {
+    mutating func remove(_ tags: TagsRange, replaceContent buildNewContent: (String) -> String) {
         var idx = startIndex
         while let range = self[idx...].rangeOfTags(tags) {
             let content = substringBetween(tagsRange: tags)
@@ -79,10 +80,19 @@ struct Segue: XMLTag {
     }
     enum Kind: String {
         case embed, unwind, relationship, show, custom
+        var isNavigable: Bool {
+            switch self {
+            case .show, .unwind, .custom:
+                return true
+            default:
+                return false
+            }
+        }
     }
     var identifier: String?
     var destinationId: String?
     var kind: Kind
+    var isIdentifiable: Bool { return identifier != nil }
 
     init(attributeDict: [String : String], tag: Segue.Tag) {
         identifier = attributeDict["identifier"]
@@ -107,16 +117,12 @@ struct Scene: XMLTag {
         }
     }
 
-    var id: String
-    var storyboardIdentifier: String?
-    var className: String
+    let id: String
+    let storyboardIdentifier: String?
+    let className: String
     var segues: [Segue] = []
-    var navigable: [Segue] {
-        return segues.filter { [Segue.Kind.custom, Segue.Kind.show, Segue.Kind.unwind].contains($0.kind) }
-    }
-    var identfiable: [Segue] {
-        return segues.filter { segue in segue.identifier != nil }
-    }
+    var navigable: [Segue] = []
+    var identfiable: [Segue] = []
 
     init(attributeDict: [String : String], tag: Scene.Tag) {
         className = attributeDict["customClass"] ?? tag.baseClass
@@ -125,6 +131,8 @@ struct Scene: XMLTag {
     }
 
     mutating func addSegue(_ segue: Segue) {
+        if segue.isIdentifiable { identfiable.append(segue) }
+        if segue.kind.isNavigable { navigable.append(segue) }
         segues.append(segue)
     }
 
@@ -138,12 +146,20 @@ struct Storyboard: XMLTag {
         case document
     }
     var name: String
-    var initialControllerId: String
+    let initialControllerId: String
     var scenes: [Scene] = []
+
+    // MARK: - Lifecycle
+
+    init(attributeDict: [String : String], tag: Tag) {
+        self.initialControllerId = attributeDict["initialViewController"] ?? ""
+        self.name = ""
+    }
+
+    // MARK: - helper methods
 
     func destinationScene(for segue: Segue) -> Scene? {
         guard let destination = segue.destinationId else {
-            print("destination is nil")
             return nil
         }
         return destinationScene(for: destination)
@@ -156,11 +172,6 @@ struct Storyboard: XMLTag {
     mutating func addScene(_ scene: Scene) {
         scenes.append(scene)
     }
-
-    init(attributeDict: [String : String], tag: Tag) {
-        self.initialControllerId = attributeDict["initialViewController"] ?? ""
-        self.name = ""
-    }
 }
 
 struct ScenePlaceholder: XMLTag {
@@ -168,8 +179,8 @@ struct ScenePlaceholder: XMLTag {
         case viewControllerPlaceholder
     }
 
-    var storyboard: String
-    var id: String
+    let storyboard: String
+    let id: String
 
     init(attributeDict: [String : String], tag: Tag) {
         storyboard = attributeDict["storyboardName"]!
@@ -180,81 +191,49 @@ struct ScenePlaceholder: XMLTag {
 // MARK: - Tags definition
 
 struct Tags {
-    static var controllerClass: String = "<#controller_class#>"
     static var node = "<#node#>"
     static var routes = "<#routes#>"
-    struct NodeInterface: TagsRange {
-        static var start: String = "<#start_node_interface#>"
-        static var end: String = "<#end_node_interface#>"
-    }
-    struct NodeLifecycle: TagsRange {
-        static var start: String = "<#start_lifecycle_code#>"
-        static var end: String = "<#end_lifecycle_code#>"
-        static var storyboard: String = "<#storyboard_name#>"
-        static var identifier: String = "<#view_controller_identifier#>"
+    static var nodeInterface = TagsRange(start: "<#start_node_interface#>", end: "<#end_node_interface#>")
 
-        struct Initial: TagsRange {
-            static var start: String = "<#start_instantiate_initial#>"
-            static var end: String = "<#end_instantiate_initial#>"
-        }
+    // Lifecycle
+    static var storyboardName = "<#storyboard_name#>"
+    static var controllerClass: String = "<#controller_class#>"
+    static var controllerIdentifier = "<#view_controller_identifier#>"
+    static var lifecycle = TagsRange(start: "<#start_lifecycle_code#>", end: "<#end_lifecycle_code#>")
+    static var lifecycleInitial = TagsRange(start: "<#start_instantiate_initial#>", end: "<#end_instantiate_initial#>")
+    static var lifecycleIdentified = TagsRange(start: "<#start_instantiate_identfier#>", end: "<#end_instantiate_identfier#>")
 
-        struct Identified: TagsRange {
-            static var start: String = "<#start_instantiate_identfier#>"
-            static var end: String = "<#end_instantiate_identfier#>"
-        }
-    }
-
-    struct Navigation: TagsRange {
-        static var start: String = "<#start_navigation_code#>"
-        static var end: String = "<#end_navigation_code#>"
-        static var destinationController: String = "<#destination_controller#>"
-        static var caseName: String = "<#case_name#>"
-
-        struct UniqueDestinations: TagsRange {
-            static var start: String = "<#start_unique_destinations#>"
-            static var end: String = "<#end_unique_destinations#>"
-        }
-
-        struct Repeatable: TagsRange {
-            static var start = "<#start_repeatable#>"
-            static var end = "<#end_repeatable#>"
-
-            struct DefaultDestination: TagsRange {
-                static var start = "<#start_repeatable_default#>"
-                static var end = "<#end_repeatable_default#>"
-            }
-
-            struct CustomDestination: TagsRange {
-                static var start = "<#start_repeatable_custom#>"
-                static var end = "<#end_repeatable_custom#>"
-            }
-        }
-    }
+    // Navigation
+    static var navigation = TagsRange(start: "<#start_navigation_code#>", end: "<#end_navigation_code#>")
+    static var destinationController = "<#destination_controller#>"
+    static var segueIdentifier: String = "<#case_name#>"
+    static var navigationToUniqueDestinations = TagsRange(start: "<#start_unique_destinations#>", end: "<#end_unique_destinations#>")
+    static var navigationToAllIdentifiers = TagsRange(start: "<#start_repeatable#>", end: "<#end_repeatable#>")
+    static var navigationToCustomDestinations = TagsRange(start: "<#start_repeatable_custom#>", end: "<#end_repeatable_custom#>")
+    static var navigationToDefaultDestinations = TagsRange(start: "<#start_repeatable_default#>", end: "<#end_repeatable_default#>")
 }
 
 struct NavigationGraph {
     var nodeName = "NavigationNode"
     var routesName = "Routes"
-    var storyboards: [Storyboard] = []
-    var placeholders: [ScenePlaceholder] = []
+    var storyboards = [Storyboard]()
+    var placeholders = [ScenePlaceholder]()
 
-    init() { }
-
-    /// <#Description#>
+    /// Takes the template and generates the code based on the graph structure
     ///
-    /// - Parameter template: <#template description#>
-    /// - Returns: <#return value description#>
-    func generateCode(for template: String) -> String {
+    /// - Parameter template: The template string to use for code generation
+    /// - Returns: The generated code
+    func generateCode(using template: String) -> String {
         // Common node protocol declaration from template
-        var generated: String = template.substringBetween(tagsRange: Tags.NodeInterface.self)
+        var generated: String = template.substringBetween(tagsRange: Tags.nodeInterface)
         generated = generated.replacingOccurrences(of: Tags.node, with: nodeName)
         generated = generated.replacingOccurrences(of: Tags.routes, with: routesName)
 
         // Lifecycle section extraction from template
-        let lifecycle = template.substringBetween(tagsRange: Tags.NodeLifecycle.self)
+        let lifecycle = template.substringBetween(tagsRange: Tags.lifecycle)
 
         // Navigation section extraction from template
-        var navigation = template.substringBetween(tagsRange: Tags.Navigation.self)
+        var navigation = template.substringBetween(tagsRange: Tags.navigation)
         navigation = navigation.replacingOccurrences(of: Tags.node, with: nodeName)
         navigation = navigation.replacingOccurrences(of: Tags.routes, with: routesName)
 
@@ -264,7 +243,7 @@ struct NavigationGraph {
         return generated.appending(
             scenes.map{
                 generatedCodeForScene($0.scene, storyboard: $0.storyboard, lifecycle: lifecycle, navigation: navigation)
-            }.joined()
+                }.joined()
         )
     }
 
@@ -286,7 +265,7 @@ struct NavigationGraph {
             return scene
         }
         if let placeholder = self.placeholder(for: segue), let storyboard = self.storyboard(forPlaceholder: placeholder) {
-            return storyboard.destinationScene(for: storyboard.initialControllerId)!
+            return storyboard.destinationScene(for: storyboard.initialControllerId)
         }
         return nil
     }
@@ -296,18 +275,18 @@ struct NavigationGraph {
         // Lifecycle
         var lifecycleCode = lifecycle
         lifecycleCode = lifecycleCode.replacingOccurrences(of: Tags.controllerClass, with: scene.className)
-        lifecycleCode = lifecycleCode.replacingOccurrences(of: Tags.NodeLifecycle.storyboard, with: storyboard.name)
+        lifecycleCode = lifecycleCode.replacingOccurrences(of: Tags.storyboardName, with: storyboard.name)
 
         if scene.isInitial(inside: storyboard) {
-            lifecycleCode.remove(Tags.NodeLifecycle.Identified.self, keepContent: false)
-            lifecycleCode.remove(Tags.NodeLifecycle.Initial.self, keepContent: true)
+            lifecycleCode.remove(Tags.lifecycleIdentified, keepContent: false)
+            lifecycleCode.remove(Tags.lifecycleInitial, keepContent: true)
             generated.append(lifecycleCode)
         }
 
         if let storyboardId = scene.storyboardIdentifier {
-            lifecycleCode = lifecycleCode.replacingOccurrences(of: Tags.NodeLifecycle.identifier, with: storyboardId)
-            lifecycleCode.remove(Tags.NodeLifecycle.Initial.self, keepContent: false)
-            lifecycleCode.remove(Tags.NodeLifecycle.Identified.self, keepContent: true)
+            lifecycleCode = lifecycleCode.replacingOccurrences(of: Tags.controllerIdentifier, with: storyboardId)
+            lifecycleCode.remove(Tags.lifecycleInitial, keepContent: false)
+            lifecycleCode.remove(Tags.lifecycleIdentified, keepContent: true)
             generated.append(lifecycleCode)
         }
 
@@ -329,18 +308,18 @@ struct NavigationGraph {
         // Protocol methods declarations
         let uniqueDestinations = Set<String>(segueMapping.map{ $0.destination }).sorted(by: < )
 
-        navigationCode.remove(Tags.Navigation.UniqueDestinations.self, replaceContent: { (content) -> String in
+        navigationCode.remove(Tags.navigationToUniqueDestinations, replaceContent: { (content) -> String in
             return uniqueDestinations.map {
-                content.replacingOccurrences(of: Tags.Navigation.destinationController, with: $0)
+                content.replacingOccurrences(of: Tags.destinationController, with: $0)
                 }.joined(separator: "\n")
         })
-        navigationCode.remove(Tags.Navigation.Repeatable.self, replaceContent: { (content) -> String in
+        navigationCode.remove(Tags.navigationToAllIdentifiers, replaceContent: { (content) -> String in
             return segueMapping.map {
                 var replacedContent = content
-                replacedContent = replacedContent.replacingOccurrences(of: Tags.Navigation.caseName, with: $0.segue)
-                replacedContent = replacedContent.replacingOccurrences(of: Tags.Navigation.destinationController, with: $0.destination)
-                replacedContent.remove(Tags.Navigation.Repeatable.CustomDestination.self, keepContent: $0.destination != "UIViewController")
-                replacedContent.remove(Tags.Navigation.Repeatable.DefaultDestination.self, keepContent: $0.destination == "UIViewController")
+                replacedContent = replacedContent.replacingOccurrences(of: Tags.segueIdentifier, with: $0.segue)
+                replacedContent = replacedContent.replacingOccurrences(of: Tags.destinationController, with: $0.destination)
+                replacedContent.remove(Tags.navigationToCustomDestinations, keepContent: $0.destination != "UIViewController")
+                replacedContent.remove(Tags.navigationToDefaultDestinations, keepContent: $0.destination == "UIViewController")
                 return replacedContent
                 }.joined(separator: "\n")
         })
@@ -348,6 +327,7 @@ struct NavigationGraph {
     }
 }
 
+/// Creates the structure of a storyboard based on the XMLParserDelegate calls.
 class StoryboardBuilder: NSObject, XMLParserDelegate {
     var name: String
     var storyboard: Storyboard?
@@ -357,6 +337,8 @@ class StoryboardBuilder: NSObject, XMLParserDelegate {
     init(name: String) {
         self.name = name
     }
+
+    // MARK: - XMLParserDelegate
 
     func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String] = [:]) {
         if let tag = Storyboard.Tag(rawValue: elementName) {
@@ -380,13 +362,23 @@ class StoryboardBuilder: NSObject, XMLParserDelegate {
 }
 
 class GraphBuilder {
-    var storyboards: [String]
+    struct Config {
+        var template: String
+        var output: String
+    }
+
+    /// The storyboards used as input for the graph
+    let storyboards: [String]
+
+    /// The graph describing the navigation for the given storyboards. On it's first use it will parse each of the storyboards
+    /// And will create the navigation graph.
     lazy var graph: NavigationGraph = {
         var graph = NavigationGraph()
         storyboards.forEach { (path) in
-            let storyboardName = NSString(string: NSString(string: path).lastPathComponent).deletingPathExtension
+            let url = URL(fileURLWithPath: path)
+            let storyboardName = url.deletingPathExtension().lastPathComponent
             let storyboardBuilder = StoryboardBuilder(name: storyboardName)
-            let xmlParser = XMLParser(contentsOf: URL(fileURLWithPath: path))
+            let xmlParser = XMLParser(contentsOf: url)
             xmlParser?.delegate = storyboardBuilder
             if let result = xmlParser?.parse(), result {
                 if let storyboard = storyboardBuilder.storyboard {
@@ -398,15 +390,24 @@ class GraphBuilder {
         return graph
     }()
 
+    // MARK: - Lifecycle
+
     init(storyboards: [String]) {
         self.storyboards = storyboards
     }
 
-    func generateCodeUsingTemplates(_ templates: [(template: String, output: String)]) throws {
-        try templates.forEach {
+    // MARK: - Code generation
+
+    /// Method which takes the configs, and for each config uses the template to generate code in the output file
+    /// If the graph has not been generated yet, it will be created on first use. For the rest of the configs the already
+    /// created graph will be used.
+    ///
+    /// - Parameter configs: An array of configs used for generating code
+    /// - Throws: An error if reading of the templates or writing to output files fails
+    func generateCode(using configs: [Config]) throws {
+        try configs.forEach {
             let templateContent = try String(contentsOf: URL(fileURLWithPath: $0.template))
-            let code = graph.generateCode(for: templateContent)
-            print(code)
+            let code = graph.generateCode(using: templateContent)
             print("writing generated code to \($0.output)")
             try code.write(toFile: $0.output, atomically: false, encoding: .utf8)
         }
@@ -418,11 +419,12 @@ struct Arguments {
         case storyboards = "-s"
         case templates = "-t"
         case outputs = "-o"
+        case xcode = "-xcode"
     }
 
-    var templates: [String]
-    var storyboards: [String]
-    var outputs: [String]
+    let templates: [String]
+    let storyboards: [String]
+    let outputs: [String]
 
     init?(arguments: [String]) {
         var templates = [String]()
@@ -435,6 +437,14 @@ struct Arguments {
                 case .storyboards: addPath = { storyboards.append($0 ) }
                 case .outputs: addPath = { outputs.append($0 ) }
                 case .templates: addPath = { templates.append($0 ) }
+                case .xcode:
+                    let info = ProcessInfo.processInfo
+                    let paths: (String) -> [String] = { prefix in
+                        let count = Int(info.environment["\(prefix)_COUNT"] ?? "0") ?? 0
+                        return (0..<count).compactMap{ info.environment["\(prefix)_\($0)"] }
+                    }
+                    storyboards.append(contentsOf: paths("SCRIPT_INPUT_FILE"))
+                    outputs.append(contentsOf: paths("SCRIPT_OUTPUT_FILE"))
                 }
             } else {
                 addPath?(argument)
@@ -454,12 +464,11 @@ struct Arguments {
     }
 }
 
-var storyboards = [String]()
-var templates = [String]()
-var outputs = [String]()
-
 if let arguments = Arguments(arguments: CommandLine.arguments) {
     let graphBuilder = GraphBuilder(storyboards: arguments.storyboards)
-    try graphBuilder.generateCodeUsingTemplates(arguments.templates.enumerated().map{ (template: $0.element, output: arguments.outputs[$0.offset]) })
+    let configs: [GraphBuilder.Config] = arguments.templates.enumerated().map{
+        GraphBuilder.Config(template: $0.element, output: arguments.outputs[$0.offset])
+    }
+    try graphBuilder.generateCode(using: configs)
 }
 
