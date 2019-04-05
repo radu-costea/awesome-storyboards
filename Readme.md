@@ -1,4 +1,4 @@
-# Awesome storyboards
+# Fistbump
 
 Storyboards are awesome, but they do involve some repetitive work and of course, stringly programming.
 
