@@ -37,7 +37,7 @@ extension DataRequest {
         let blur: String? = blured ? "blur" : nil
         let imageId: String? = id.map{ "image=\($0)" } ?? "random"
         let gray: String? = grayscale ? "g" : nil
-        let size: String? = "\(size.width)/\(size.height)"
+        let size: String? = "\(Int(size.width))/\(Int(size.height))"
         let root: String? = "https://picsum.photos"
         
         let path = [root, gray, size].compactMap{ $0 }.joined(separator: "/")
