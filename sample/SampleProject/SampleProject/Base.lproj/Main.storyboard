@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="oRX-Ul-aFo">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="oRX-Ul-aFo">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -83,7 +83,7 @@
                                 </subviews>
                             </stackView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="F6Q-0U-kbc" firstAttribute="bottom" secondItem="ZwR-5X-4qN" secondAttribute="bottom" id="1ni-Dd-mI1"/>
                             <constraint firstItem="F6Q-0U-kbc" firstAttribute="leading" secondItem="ZwR-5X-4qN" secondAttribute="leading" id="JPh-Fe-84k"/>
@@ -126,7 +126,7 @@
                                 </connections>
                             </containerView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="8ee-P8-C1i" firstAttribute="trailing" secondItem="PGX-jX-feL" secondAttribute="trailing" id="8ha-s9-NSH"/>
                             <constraint firstItem="q4Q-4Y-DZ5" firstAttribute="top" secondItem="PGX-jX-feL" secondAttribute="top" id="Bdw-pD-Z9b"/>
@@ -295,7 +295,7 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="Zt1-OZ-p5E" firstAttribute="top" secondItem="1oU-iR-EHS" secondAttribute="top" id="0iN-HJ-CeK"/>
                             <constraint firstItem="9el-2R-Y59" firstAttribute="bottom" secondItem="J6Q-VV-QLL" secondAttribute="bottom" id="1ug-sd-Y45"/>
@@ -344,7 +344,7 @@
                                 <color key="color" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </activityIndicatorView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="mGC-be-5uE" firstAttribute="centerX" secondItem="Ps6-dw-erO" secondAttribute="centerX" id="AFB-rB-nfh"/>
                             <constraint firstItem="mGC-be-5uE" firstAttribute="centerY" secondItem="Ps6-dw-erO" secondAttribute="centerY" id="G5q-fG-DBO"/>
@@ -368,6 +368,6 @@
         <image name="background" width="375" height="568"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="tyh-ch-Pac"/>
+        <segue reference="dUw-et-yyP"/>
     </inferredMetricsTieBreakers>
 </document>
